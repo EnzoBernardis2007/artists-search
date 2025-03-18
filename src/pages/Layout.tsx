@@ -112,7 +112,7 @@ export default function Layout() {
     return (
         <div className="h-screen flex">
             {/* Profile */}
-            <aside className="bg-neutral-950 h-screen w-1/3" >
+            <aside className="bg-neutral-950 h-screen w-1/3 z-50" >
                 <div className="w-full px-10 py-7 gap-3 flex">
                     <div className="bg-neutral-900 w-full p-4 rounded-2xl">
                         <input className="bg-neutral-800 text-neutral-50 w-full px-3 py-1 mb-2 rounded-full"
@@ -134,10 +134,40 @@ export default function Layout() {
                     onClick={handleSearchClick}><FaSearch /></button>
                 </div>
             </aside>
-            <main className="bg-neutral-800 h-screen w-2/3">
+            <main className="bg-neutral-900 h-screen w-2/3">
                 {
                     artistDetails && (
-                        <img src={artistDetails.images[0]?.url}/>
+                        <div className="relative">
+                            <img className="w-full h-44 object-cover object-center filter blur-sm"
+                            src={artistDetails.images[0]?.url}/>
+                            <div className="relative bg-neutral-900 h-full w-full">
+                                <img src={artistDetails.images[1]?.url}
+                                className="absolute top-[-150px] h-56 w-56 object-center transform left-1/2 -translate-x-1/2 shadow-2xl shadow-black object-cover"/>
+                                <div className="h-24"/>
+                                <p className="text-center text-2xl mb-3 font-bold text-neutral-50">{artistDetails.name}</p>
+                                <div className="w-full gap-2 flex justify-center">
+                                    {
+                                        artistDetails.genres.map((genre:string ) => (
+                                            <p className="bg-neutral-950 px-3 py-1 text-neutral-50 rounded-full">{genre}</p>
+                                        ))
+                                    }
+                                </div>
+                                <div className="px-10 mt-4 gap-4 flex justify-center">
+                                    {
+                                        topTracks.slice(0, 5).map((track) => (
+                                            <div className="bg-neutral-950 w-full flex flex-col rounded-md">
+                                                <img src={track.album.images[1]?.url} 
+                                                className="rounded-tl-md rounded-tr-md"/>
+                                                <div className="h-full p-2 flex flex-col justify-center items-center">
+                                                    <p className="text-neutral-50 text-sm text-center">{track.name}</p>
+                                                    <p className="text-neutral-400 text-xs text-center">{track.album.release_date}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     )
                 }
             </main>
