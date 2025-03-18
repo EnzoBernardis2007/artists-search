@@ -4,6 +4,7 @@ import { FaSearch } from "react-icons/fa"
 export default function Layout() {
     const [accessToken, setAccessToken] = useState<string | null>(null)
     const [searchResults, setSearchResults] = useState<any[]>([])
+    const [searchBar, setSearchBar] = useState<string>("")
     const clientId: string = "73e8a21edfc942fb85506fb935a1f252"
     const clientSecret: string = "bbc2dc14882a4580bea1aa54bbdfdb7d"
 
@@ -33,11 +34,9 @@ export default function Layout() {
         searchSpotify("Kendrick Lamar")
     }, [])
 
-    useEffect(() => {
-        if (accessToken) {
-            searchSpotify("Kendrick Lamar")
-        }
-    }, [accessToken])
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchBar(e.target.value)
+    }
 
     const searchSpotify = async (query: string) => {
         if(!accessToken) {
@@ -62,6 +61,10 @@ export default function Layout() {
         }
     }
 
+    const handleSearchClick = () => {
+        searchSpotify(searchBar)
+    }
+
     return (
         <div className="h-screen flex">
             {/* Profile */}
@@ -69,6 +72,9 @@ export default function Layout() {
                 <div className="w-full px-10 py-7 gap-3 flex">
                     <div className="bg-neutral-900 w-full p-4 rounded-2xl">
                         <input className="bg-neutral-800 text-neutral-50 w-full px-3 py-1 mb-2 rounded-full"
+                        value={searchBar}
+                        onChange={handleSearchChange}
+                        placeholder="Type here"
                         type="text"/>
                         {
                             searchResults.map((artist) => (
@@ -79,7 +85,8 @@ export default function Layout() {
                             ))
                         }
                     </div>
-                    <button className="bg-green-500 h-9 w-11 rounded-full flex justify-center items-center hover:cursor-pointer"><FaSearch /></button>
+                    <button className="bg-green-500 h-9 w-11 rounded-full flex justify-center items-center hover:cursor-pointer"
+                    onClick={handleSearchClick}><FaSearch /></button>
                 </div>
             </aside>
             <main className="bg-neutral-800 h-screen w-2/3">
