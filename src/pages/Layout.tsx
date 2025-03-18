@@ -2,21 +2,10 @@ import { useEffect, useState } from "react"
 import { FaSearch } from "react-icons/fa"
 
 export default function Layout() {
-    const [accessToken, setAccessToken] = useState()
+    const [accessToken, setAccessToken] = useState<string | null>(null)
+    const [searchResults, setSearchResults] = useState<any[]>([])
     const clientId: string = "73e8a21edfc942fb85506fb935a1f252"
     const clientSecret: string = "bbc2dc14882a4580bea1aa54bbdfdb7d"
-    const suggestionsData: string[] = [
-        "Maçã",
-        "Banana",
-        "Laranja",
-        "Morango",
-        "Abacaxi",
-        "Uva",
-        "Pera",
-        "Melancia",
-        "Kiwi",
-        "Manga"
-    ]
 
     useEffect(() => {
         const getAccessToken = async () => {
@@ -41,7 +30,37 @@ export default function Layout() {
         }
 
         getAccessToken()
+        searchSpotify("Kendrick Lamar")
     }, [])
+
+    useEffect(() => {
+        if (accessToken) {
+            searchSpotify("Kendrick Lamar")
+        }
+    }, [accessToken])
+
+    const searchSpotify = async (query: string) => {
+        if(!accessToken) {
+            console.log("no access token provided")
+        }
+
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=8`, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            }
+        })
+
+        if(response.ok) {
+            const data = await response.json()
+            setSearchResults(data.artists.items)
+            console.log(data.artists.items)
+        } else {
+            console.log("error searching for artists on Spotify")
+            console.log(response)
+        }
+    }
 
     return (
         <div className="h-screen flex">
@@ -52,8 +71,11 @@ export default function Layout() {
                         <input className="bg-neutral-800 text-neutral-50 w-full px-3 py-1 mb-2 rounded-full"
                         type="text"/>
                         {
-                            suggestionsData.map((suggestion) => (
-                                <p className="text-neutral-100 text-center">{suggestion}</p>
+                            searchResults.map((artist) => (
+                                <div key={artist.id} className="mb-4">
+                                    <p className="text-neutral-100 text-center">{artist.name}</p>
+                                    <p className="text-neutral-500 text-center">Followers: {artist.followers.total}</p>
+                                </div>
                             ))
                         }
                     </div>
