@@ -5,6 +5,8 @@ export default function Layout() {
     const [accessToken, setAccessToken] = useState<string | null>(null)
     const [searchResults, setSearchResults] = useState<any[]>([])
     const [searchBar, setSearchBar] = useState<string>("")
+    const [artistDetails, setArtistsDetails] = useState<any | null>(null)
+    const [topTracks, setTopTracks] = useState<any[]>([])
     const clientId: string = "73e8a21edfc942fb85506fb935a1f252"
     const clientSecret: string = "bbc2dc14882a4580bea1aa54bbdfdb7d"
 
@@ -33,6 +35,8 @@ export default function Layout() {
         getAccessToken()
         searchSpotify("Kendrick Lamar")
     }, [])
+
+    useEffect(() => {}, [artistDetails, topTracks])
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchBar(e.target.value)
@@ -65,6 +69,46 @@ export default function Layout() {
         searchSpotify(searchBar)
     }
 
+    const handleArtistClick = async (artistId: string) => {
+        if(!accessToken) {
+            console.log("no access token provided")
+        }
+
+        const artistsResponse = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            }
+        })
+
+        if(artistsResponse.ok) {
+            const data = await artistsResponse.json()
+            setArtistsDetails(data)
+            console.log("artista")
+            console.log(data)
+        } else {
+            console.log("error fetching artist details")
+        }
+
+        const topTracksResponse = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            }
+        })
+
+        if(topTracksResponse.ok) {
+            const data = await topTracksResponse.json()
+            setTopTracks(data.tracks)
+            console.log("tracks")
+            console.log(data.tracks)
+        } else {
+            console.log("Error fetching top tracks")
+        }
+    }
+
     return (
         <div className="h-screen flex">
             {/* Profile */}
@@ -78,7 +122,8 @@ export default function Layout() {
                         type="text"/>
                         {
                             searchResults.map((artist) => (
-                                <div key={artist.id} className="mb-4">
+                                <div key={artist.id} className="m-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md"
+                                onClick={() => handleArtistClick(artist.id)}>
                                     <p className="text-neutral-100 text-center">{artist.name}</p>
                                     <p className="text-neutral-500 text-center">Followers: {artist.followers.total}</p>
                                 </div>
@@ -90,7 +135,11 @@ export default function Layout() {
                 </div>
             </aside>
             <main className="bg-neutral-800 h-screen w-2/3">
-                <p>oi</p>
+                {
+                    artistDetails && (
+                        <img src={artistDetails.images[0]?.url}/>
+                    )
+                }
             </main>
         </div>
     )
