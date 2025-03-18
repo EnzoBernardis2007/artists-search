@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FaSearch } from "react-icons/fa"
+import profile from '../assets/profile.jpg'
 
 export default function Layout() {
     const [accessToken, setAccessToken] = useState<string | null>(null)
@@ -7,8 +7,8 @@ export default function Layout() {
     const [searchBar, setSearchBar] = useState<string>("")
     const [artistDetails, setArtistsDetails] = useState<any | null>(null)
     const [topTracks, setTopTracks] = useState<any[]>([])
-    const clientId: string = "73e8a21edfc942fb85506fb935a1f252"
-    const clientSecret: string = "bbc2dc14882a4580bea1aa54bbdfdb7d"
+    const clientId: string | undefined = import.meta.env.VITE_CLIENT_ID
+    const clientSecret: string | undefined = import.meta.env.VITE_CLIENT_SECRET
 
     useEffect(() => {
         const getAccessToken = async () => {
@@ -26,15 +26,17 @@ export default function Layout() {
             if(response.ok) {
                 const data = await response.json()
                 setAccessToken(data.access_token)
-                console.log(data)
             } else {
                 console.log("Unable to get access token")
             }
         }
 
         getAccessToken()
-        searchSpotify("Kendrick Lamar")
     }, [])
+
+    useEffect(() => {
+        searchSpotify(searchBar)
+    }, [searchBar])
 
     useEffect(() => {}, [artistDetails, topTracks])
 
@@ -44,7 +46,7 @@ export default function Layout() {
 
     const searchSpotify = async (query: string) => {
         if(!accessToken) {
-            console.log("no access token provided")
+            console.log("No access token provided")
         }
 
         const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=8`, {
@@ -58,15 +60,9 @@ export default function Layout() {
         if(response.ok) {
             const data = await response.json()
             setSearchResults(data.artists.items)
-            console.log(data.artists.items)
         } else {
-            console.log("error searching for artists on Spotify")
-            console.log(response)
+            console.log("Error searching for artists on Spotify")
         }
-    }
-
-    const handleSearchClick = () => {
-        searchSpotify(searchBar)
     }
 
     const handleArtistClick = async (artistId: string) => {
@@ -85,10 +81,8 @@ export default function Layout() {
         if(artistsResponse.ok) {
             const data = await artistsResponse.json()
             setArtistsDetails(data)
-            console.log("artista")
-            console.log(data)
         } else {
-            console.log("error fetching artist details")
+            console.log("Error fetching artist details")
         }
 
         const topTracksResponse = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`, {
@@ -102,8 +96,6 @@ export default function Layout() {
         if(topTracksResponse.ok) {
             const data = await topTracksResponse.json()
             setTopTracks(data.tracks)
-            console.log("tracks")
-            console.log(data.tracks)
         } else {
             console.log("Error fetching top tracks")
         }
@@ -122,16 +114,17 @@ export default function Layout() {
                         type="text"/>
                         {
                             searchResults.map((artist) => (
-                                <div key={artist.id} className="m-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md"
-                                onClick={() => handleArtistClick(artist.id)}>
+                                <div 
+                                    key={artist.id} 
+                                    className="m-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md"
+                                    onClick={() => handleArtistClick(artist.id)}
+                                >
                                     <p className="text-neutral-100 text-center">{artist.name}</p>
                                     <p className="text-neutral-500 text-center">Followers: {artist.followers.total}</p>
                                 </div>
                             ))
                         }
                     </div>
-                    <button className="bg-green-500 h-9 w-11 rounded-full flex justify-center items-center hover:cursor-pointer"
-                    onClick={handleSearchClick}><FaSearch /></button>
                 </div>
             </aside>
             <main className="bg-neutral-900 h-screen w-2/3">
@@ -141,23 +134,23 @@ export default function Layout() {
                             <img className="w-full h-44 object-cover object-center filter blur-sm"
                             src={artistDetails.images[0]?.url}/>
                             <div className="relative bg-neutral-900 h-full w-full">
-                                <img src={artistDetails.images[1]?.url}
+                                <img src={artistDetails.images[1] ? artistDetails.images[1]?.url : profile}
                                 className="absolute top-[-150px] h-56 w-56 object-center transform left-1/2 -translate-x-1/2 shadow-2xl shadow-black object-cover"/>
                                 <div className="h-24"/>
                                 <p className="text-center text-2xl mb-3 font-bold text-neutral-50">{artistDetails.name}</p>
                                 <div className="w-full gap-2 flex justify-center">
                                     {
-                                        artistDetails.genres.map((genre:string ) => (
-                                            <p className="bg-neutral-950 px-3 py-1 text-neutral-50 rounded-full">{genre}</p>
+                                        artistDetails.genres.map((genre:string, index:number) => (
+                                            <p key={index} className="bg-neutral-950 px-3 py-1 text-neutral-50 rounded-full">{genre}</p>
                                         ))
                                     }
                                 </div>
                                 <div className="px-10 mt-4 gap-4 flex justify-center">
                                     {
-                                        topTracks.slice(0, 5).map((track) => (
-                                            <div className="bg-neutral-950 w-full flex flex-col rounded-md">
+                                        topTracks.slice(0, 5).map((track, index) => (
+                                            <div key={index} className="bg-neutral-950 max-h-60 max-w-40 w-full flex flex-col rounded-md">
                                                 <img src={track.album.images[1]?.url} 
-                                                className="rounded-tl-md rounded-tr-md"/>
+                                                className="max-h-40 rounded-tl-md rounded-tr-md"/>
                                                 <div className="h-full p-2 flex flex-col justify-center items-center">
                                                     <p className="text-neutral-50 text-sm text-center">{track.name}</p>
                                                     <p className="text-neutral-400 text-xs text-center">{track.album.release_date}</p>

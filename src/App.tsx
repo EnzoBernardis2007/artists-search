@@ -1,11 +1,9 @@
-import Router from "./navigation/Router"
+import Layout from "./pages/Layout"
 
 
 function App() {
   return (
-    <>
-      <Router />
-    </>
+    <Layout />
   )
 }
 
