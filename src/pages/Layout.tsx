@@ -89,6 +89,7 @@ export default function Layout() {
         if(artistsResponse.ok) {
             const data = await artistsResponse.json()
             setArtistsDetails(data)
+            console.log(data)
         } else {
             console.log("Error fetching artist details")
         }
@@ -107,6 +108,15 @@ export default function Layout() {
         } else {
             console.log("Error fetching top tracks")
         }
+    }
+
+    const formatFollowers = (num: number) => {
+        if (num >= 1_000_000) {
+            return `${Math.floor(num / 1_000_000)} million`;
+        } else if (num >= 1_000) {
+            return `${Math.floor(num / 1_000)} thousand`;
+        }
+        return num.toString();
     }
 
     return (
@@ -149,21 +159,22 @@ export default function Layout() {
                                     <img src={artistDetails.images[1] ? artistDetails.images[1]?.url : profile}
                                     className="h-56 w-56 object-center shadow-2xl shadow-black object-cover"/>
                                     <div className="bg-neutral-950 w-[600px] pl-6 rounded-tr-2xl rounded-br-2xl">
-                                        <p className="mt-4 text-2xl mb-3 font-bold text-neutral-50">{artistDetails.name}</p>
+                                        <p className="mt-5 text-2xl font-bold text-neutral-50">{artistDetails.name}</p>
+                                        <p className="text-xl mb-2 text-neutral-50">{formatFollowers(artistDetails.followers.total)}</p>
+                                        <div className="w-full gap-2 flex flex-wrap">
+                                            {
+                                                artistDetails.genres.map((genre:string, index:number) => (
+                                                    <p key={index} className="bg-green-600 px-3 py-1 text-neutral-50 rounded-full">{genre}</p>
+                                                ))
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="h-24"/>
-                                <div className="w-full gap-2 flex justify-center">
-                                    {
-                                        artistDetails.genres.map((genre:string, index:number) => (
-                                            <p key={index} className="bg-neutral-950 px-3 py-1 text-neutral-50 rounded-full">{genre}</p>
-                                        ))
-                                    }
-                                </div>
                                 <div className="px-10 mt-4 gap-4 flex justify-center">
                                     {
                                         topTracks.slice(0, 5).map((track, index) => (
-                                            <div key={index} className="bg-neutral-950 h-60 max-w-40 w-full flex flex-col rounded-md">
+                                            <div key={index} className="bg-neutral-950 h-64 max-w-40 w-full flex flex-col rounded-md">
                                                 <img src={track.album.images[1]?.url} 
                                                 className="max-h-40 rounded-tl-md rounded-tr-md"/>
                                                 <div className="h-full p-2 flex flex-col justify-center items-center">
