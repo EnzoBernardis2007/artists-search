@@ -35,7 +35,13 @@ export default function Layout() {
     }, [])
 
     useEffect(() => {
-        searchSpotify(searchBar)
+        if(searchBar.length > 0) {
+            searchSpotify(searchBar)
+        } else {
+            setArtistsDetails(null)
+            setTopTracks([])
+            setSearchResults([])
+        }
     }, [searchBar])
 
     useEffect(() => {}, [artistDetails, topTracks])
@@ -113,7 +119,10 @@ export default function Layout() {
                         placeholder="Type here"
                         type="text"/>
                         {
-                            searchResults.map((artist) => (
+                            searchResults.length > 0 && searchResults
+                            .filter(artist => artist.name.toLowerCase().startsWith(searchBar.toLowerCase()))
+                            .sort((a, b) => b.popularity - a.popularity)
+                            .map((artist) => (
                                 <div 
                                     key={artist.id} 
                                     className="m-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md"
