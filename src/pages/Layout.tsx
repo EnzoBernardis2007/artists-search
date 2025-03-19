@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import profile from '../assets/profile.jpg'
+import { FaGithub } from "react-icons/fa";
+import { FaLinkedin } from "react-icons/fa6";
 
 export default function Layout() {
     const [accessToken, setAccessToken] = useState<string | null>(null)
@@ -55,7 +57,7 @@ export default function Layout() {
             console.log("No access token provided")
         }
 
-        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=8`, {
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=9`, {
             method: "GET",
             headers: {
                 "Content-type": "application/json",
@@ -136,17 +138,21 @@ export default function Layout() {
                     </div>
                 </div>
             </aside>
-            <main className="bg-neutral-900 h-screen w-2/3">
+            <main className="relative bg-neutral-900 h-screen w-2/3">
                 {
                     artistDetails && (
                         <div className="relative">
                             <img className="w-full h-44 object-cover object-center filter blur-sm"
                             src={artistDetails.images[0]?.url}/>
                             <div className="relative bg-neutral-900 h-full w-full">
-                                <img src={artistDetails.images[1] ? artistDetails.images[1]?.url : profile}
-                                className="absolute top-[-150px] h-56 w-56 object-center transform left-1/2 -translate-x-1/2 shadow-2xl shadow-black object-cover"/>
+                                <div className="absolute top-[-150px] object-center transform left-1/2 -translate-x-1/2 flex">
+                                    <img src={artistDetails.images[1] ? artistDetails.images[1]?.url : profile}
+                                    className="h-56 w-56 object-center shadow-2xl shadow-black object-cover"/>
+                                    <div className="bg-neutral-950 w-[600px] pl-6 rounded-tr-2xl rounded-br-2xl">
+                                        <p className="mt-4 text-2xl mb-3 font-bold text-neutral-50">{artistDetails.name}</p>
+                                    </div>
+                                </div>
                                 <div className="h-24"/>
-                                <p className="text-center text-2xl mb-3 font-bold text-neutral-50">{artistDetails.name}</p>
                                 <div className="w-full gap-2 flex justify-center">
                                     {
                                         artistDetails.genres.map((genre:string, index:number) => (
@@ -157,7 +163,7 @@ export default function Layout() {
                                 <div className="px-10 mt-4 gap-4 flex justify-center">
                                     {
                                         topTracks.slice(0, 5).map((track, index) => (
-                                            <div key={index} className="bg-neutral-950 max-h-60 max-w-40 w-full flex flex-col rounded-md">
+                                            <div key={index} className="bg-neutral-950 h-60 max-w-40 w-full flex flex-col rounded-md">
                                                 <img src={track.album.images[1]?.url} 
                                                 className="max-h-40 rounded-tl-md rounded-tr-md"/>
                                                 <div className="h-full p-2 flex flex-col justify-center items-center">
@@ -172,6 +178,10 @@ export default function Layout() {
                         </div>
                     )
                 }
+                <footer className="absolute bg-neutral-950 w-full gap-4 p-6 bottom-0 flex justify-center items-center">
+                    <a href="https://github.com/EnzoBernardis2007"><FaGithub className="text-neutral-800 w-8 h-8"/></a>
+                    <a href="https://www.linkedin.com/in/enzo-bernardis-9aa1a22b7/"><FaLinkedin className="text-neutral-800 w-8 h-8"/></a>
+                </footer>
             </main>
         </div>
     )
